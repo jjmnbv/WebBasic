@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"
+"http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+
+
+<!-- 不使用namespace的话sql搜索定位会比较方便 -->
+<mapper namespace="Employee">
+
+	<resultMap id="RM.Employee" type="com.jckj.webbasic.model.Employee">
+        <result property="employeeId" column="EMPLOYEE_ID"/>
+        <result property="organizationId" column="ORGANIZATION_ID"/>
+        <result property="employeeName" column="EMPLOYEE_NAME"/>
+        <result property="address" column="ADDRESS"/>
+        <result property="telephone" column="TELEPHONE"/>
+        <result property="email" column="EMAIL"/>
+        <result property="updateUserId" column="UPDATE_USER_ID"/>
+        <result property="updateTime" column="UPDATE_TIME"/>
+	</resultMap>
+	
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="Employee.columns">
+	    <![CDATA[
+		EMPLOYEE_ID,ORGANIZATION_ID,EMPLOYEE_NAME,ADDRESS,TELEPHONE,EMAIL,UPDATE_USER_ID,UPDATE_TIME
+	    ]]>
+	</sql>
+
+	<!-- useGeneratedKeys="true" keyProperty="xxx" for sqlserver and mysql -->
+	<insert id="Employee.insert" useGeneratedKeys="true" keyProperty="employeeId">
+    <![CDATA[
+        INSERT INTO t_employee (
+        	EMPLOYEE_ID ,
+        	ORGANIZATION_ID ,
+        	EMPLOYEE_NAME ,
+        	ADDRESS ,
+        	TELEPHONE ,
+        	EMAIL ,
+        	UPDATE_USER_ID ,
+        	UPDATE_TIME 
+        ) VALUES (
+        	#{employeeId} ,
+        	#{organizationId} ,
+        	#{employeeName} ,
+        	#{address} ,
+        	#{telephone} ,
+        	#{email} ,
+        	#{updateUserId} ,
+        	#{updateTime} 
+        )
+    ]]>
+		<!--	
+			oracle: order="BEFORE" SELECT sequenceName.nextval AS ID FROM DUAL 
+			DB2: order="BEFORE"" values nextval for sequenceName
+		<selectKey resultType="java.lang.Long" order="BEFORE" keyProperty="userId">
+			SELECT sequenceName.nextval AS ID FROM DUAL 
+        </selectKey>
+		-->
+	</insert>
+    
+	<update id="Employee.update" >
+    <![CDATA[
+        UPDATE t_employee SET
+	        ORGANIZATION_ID = #{organizationId} ,
+	        EMPLOYEE_NAME = #{employeeName} ,
+	        ADDRESS = #{address} ,
+	        TELEPHONE = #{telephone} ,
+	        EMAIL = #{email} ,
+	        UPDATE_USER_ID = #{updateUserId} ,
+	        UPDATE_TIME = #{updateTime} 
+        WHERE 
+	        EMPLOYEE_ID = #{employeeId} 
+    ]]>
+	</update>
+
+    <delete id="Employee.delete">
+    <![CDATA[
+        DELETE FROM t_employee WHERE
+        EMPLOYEE_ID = #{id} 
+    ]]>
+    </delete>
+    
+    <select id="Employee.getById" resultMap="RM.Employee">
+		SELECT <include refid="Employee.columns" />
+	    <![CDATA[
+		    FROM t_employee 
+	        WHERE 
+		        EMPLOYEE_ID = #{id} 
+	    ]]>
+	</select>
+	
+	<sql id="Employee.findPage.where">
+		<!-- ognl访问静态方法的表达式 为@class@method(args),以下为调用rapid中的Ognl.isNotEmpty()方法,还有其它方法如isNotBlank()可以使用，具体请查看Ognl类 -->
+		<where>	      				
+	       <if test="@Ognl@isNotEmpty(employeeId)">
+				AND EMPLOYEE_ID = #{employeeId}
+			</if>
+	       <if test="@Ognl@isNotEmpty(organizationId)">
+				AND ORGANIZATION_ID = #{organizationId}
+			</if>
+	       <if test="@Ognl@isNotEmpty(employeeName)">
+				AND EMPLOYEE_NAME = #{employeeName}
+			</if>
+	       <if test="@Ognl@isNotEmpty(address)">
+				AND ADDRESS = #{address}
+			</if>
+	       <if test="@Ognl@isNotEmpty(telephone)">
+				AND TELEPHONE = #{telephone}
+			</if>
+	       <if test="@Ognl@isNotEmpty(email)">
+				AND EMAIL = #{email}
+			</if>
+	       <if test="@Ognl@isNotEmpty(updateUserId)">
+				AND UPDATE_USER_ID = #{updateUserId}
+			</if>
+	       <if test="@Ognl@isNotEmpty(updateTimeBegin)">
+				AND UPDATE_TIME >= #{updateTimeBegin}
+		   </if>
+		   <if test="@Ognl@isNotEmpty(updateTimeEnd)">
+				AND UPDATE_TIME &lt;= #{updateTimeEnd}
+		   </if>
+		</where>
+	</sql>
+		
+    <select id="Employee.findPage.count" resultType="long">
+        SELECT count(*) FROM t_employee 
+		<include refid="Employee.findPage.where"/>    
+    </select>
+    
+    <!--
+    	分页查询已经使用Dialect进行分页,也可以不使用Dialect直接编写分页
+    	因为分页查询将传 offset,pageSize,lastRows 三个参数,不同的数据库可以根于此三个参数属性应用不同的分页实现
+    -->
+    <select id="Employee.findPage" resultMap="RM.Employee">
+    	SELECT <include refid="Employee.columns" />
+	    FROM t_employee 
+		<include refid="Employee.findPage.where"/>
+		
+		<if test="@Ognl@isNotEmpty(sortColumns)">
+			ORDER BY ${sortColumns}
+		</if>
+    </select>
+
+	
+</mapper>
+

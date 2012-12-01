@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"
+"http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+
+
+<!-- 不使用namespace的话sql搜索定位会比较方便 -->
+<mapper namespace="Organization">
+
+	<resultMap id="RM.Organization" type="com.jckj.webbasic.model.Organization">
+        <result property="organizationId" column="ORGANIZATION_ID"/>
+        <result property="name" column="NAME"/>
+        <result property="code" column="CODE"/>
+        <result property="superOrganizationId" column="SUPER_ORGANIZATION_ID"/>
+        <result property="areaCode" column="AREA_CODE"/>
+        <result property="remark" column="REMARK"/>
+        <result property="updateTime" column="UPDATE_TIME"/>
+	</resultMap>
+	
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="Organization.columns">
+	    <![CDATA[
+		ORGANIZATION_ID,NAME,CODE,SUPER_ORGANIZATION_ID,AREA_CODE,REMARK,UPDATE_TIME
+	    ]]>
+	</sql>
+
+	<!-- useGeneratedKeys="true" keyProperty="xxx" for sqlserver and mysql -->
+	<insert id="Organization.insert" useGeneratedKeys="true" keyProperty="organizationId">
+    <![CDATA[
+        INSERT INTO t_organization (
+        	ORGANIZATION_ID ,
+        	NAME ,
+        	CODE ,
+        	SUPER_ORGANIZATION_ID ,
+        	AREA_CODE ,
+        	REMARK ,
+        	UPDATE_TIME 
+        ) VALUES (
+        	#{organizationId} ,
+        	#{name} ,
+        	#{code} ,
+        	#{superOrganizationId} ,
+        	#{areaCode} ,
+        	#{remark} ,
+        	#{updateTime} 
+        )
+    ]]>
+		<!--	
+			oracle: order="BEFORE" SELECT sequenceName.nextval AS ID FROM DUAL 
+			DB2: order="BEFORE"" values nextval for sequenceName
+		<selectKey resultType="java.lang.Long" order="BEFORE" keyProperty="userId">
+			SELECT sequenceName.nextval AS ID FROM DUAL 
+        </selectKey>
+		-->
+	</insert>
+    
+	<update id="Organization.update" >
+    <![CDATA[
+        UPDATE t_organization SET
+	        NAME = #{name} ,
+	        CODE = #{code} ,
+	        SUPER_ORGANIZATION_ID = #{superOrganizationId} ,
+	        AREA_CODE = #{areaCode} ,
+	        REMARK = #{remark} ,
+	        UPDATE_TIME = #{updateTime} 
+        WHERE 
+	        ORGANIZATION_ID = #{organizationId} 
+    ]]>
+	</update>
+
+    <delete id="Organization.delete">
+    <![CDATA[
+        DELETE FROM t_organization WHERE
+        ORGANIZATION_ID = #{id} 
+    ]]>
+    </delete>
+    
+    <select id="Organization.getById" resultMap="RM.Organization">
+		SELECT <include refid="Organization.columns" />
+	    <![CDATA[
+		    FROM t_organization 
+	        WHERE 
+		        ORGANIZATION_ID = #{id} 
+	    ]]>
+	</select>
+	
+	<sql id="Organization.findPage.where">
+		<!-- ognl访问静态方法的表达式 为@class@method(args),以下为调用rapid中的Ognl.isNotEmpty()方法,还有其它方法如isNotBlank()可以使用，具体请查看Ognl类 -->
+		<where>	      				
+	       <if test="@Ognl@isNotEmpty(organizationId)">
+				AND ORGANIZATION_ID = #{organizationId}
+			</if>
+	       <if test="@Ognl@isNotEmpty(name)">
+				AND NAME = #{name}
+			</if>
+	       <if test="@Ognl@isNotEmpty(code)">
+				AND CODE = #{code}
+			</if>
+	       <if test="@Ognl@isNotEmpty(superOrganizationId)">
+				AND SUPER_ORGANIZATION_ID = #{superOrganizationId}
+			</if>
+	       <if test="@Ognl@isNotEmpty(areaCode)">
+				AND AREA_CODE = #{areaCode}
+			</if>
+	       <if test="@Ognl@isNotEmpty(remark)">
+				AND REMARK = #{remark}
+			</if>
+	       <if test="@Ognl@isNotEmpty(updateTimeBegin)">
+				AND UPDATE_TIME >= #{updateTimeBegin}
+		   </if>
+		   <if test="@Ognl@isNotEmpty(updateTimeEnd)">
+				AND UPDATE_TIME &lt;= #{updateTimeEnd}
+		   </if>
+		</where>
+	</sql>
+		
+    <select id="Organization.findPage.count" resultType="long">
+        SELECT count(*) FROM t_organization 
+		<include refid="Organization.findPage.where"/>    
+    </select>
+    
+    <!--
+    	分页查询已经使用Dialect进行分页,也可以不使用Dialect直接编写分页
+    	因为分页查询将传 offset,pageSize,lastRows 三个参数,不同的数据库可以根于此三个参数属性应用不同的分页实现
+    -->
+    <select id="Organization.findPage" resultMap="RM.Organization">
+    	SELECT <include refid="Organization.columns" />
+	    FROM t_organization 
+		<include refid="Organization.findPage.where"/>
+		
+		<if test="@Ognl@isNotEmpty(sortColumns)">
+			ORDER BY ${sortColumns}
+		</if>
+    </select>
+
+	
+</mapper>
+

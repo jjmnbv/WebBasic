@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- DBUnit flatXml DataFile -->
+<dataset>
+
+
+	  <t_organization 
+			ORGANIZATION_ID='626' 
+			NAME='Name236' 
+			CODE='Code219' 
+			SUPER_ORGANIZATION_ID='833' 
+			AREA_CODE='AreaCode374' 
+			REMARK='Remark231' 
+			UPDATE_TIME='2012-11-28 23:33:40.916' 
+	  />	
+  
+</dataset>

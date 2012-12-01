@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- DBUnit flatXml DataFile -->
+<dataset>
+
+
+	  <t_group_user 
+			GROUP_USER_ID='060' 
+			USER_ID='207' 
+			GROUP_ID='078' 
+	  />	
+  
+</dataset>

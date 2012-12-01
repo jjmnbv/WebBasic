@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- DBUnit flatXml DataFile -->
+<dataset>
+
+
+	  <t_employee 
+			EMPLOYEE_ID='873' 
+			ORGANIZATION_ID='548' 
+			EMPLOYEE_NAME='EmployeeName830' 
+			ADDRESS='Address462' 
+			TELEPHONE='Telephone185' 
+			EMAIL='Email113' 
+			UPDATE_USER_ID='028' 
+			UPDATE_TIME='2012-11-28 23:33:39.88' 
+	  />	
+  
+</dataset>

@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"
+"http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+
+
+<!-- 不使用namespace的话sql搜索定位会比较方便 -->
+<mapper namespace="GroupUser">
+
+	<resultMap id="RM.GroupUser" type="com.jckj.webbasic.model.GroupUser">
+        <result property="groupUserId" column="GROUP_USER_ID"/>
+        <result property="userId" column="USER_ID"/>
+        <result property="groupId" column="GROUP_ID"/>
+	</resultMap>
+	
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="GroupUser.columns">
+	    <![CDATA[
+		GROUP_USER_ID,USER_ID,GROUP_ID
+	    ]]>
+	</sql>
+
+	<!-- useGeneratedKeys="true" keyProperty="xxx" for sqlserver and mysql -->
+	<insert id="GroupUser.insert" useGeneratedKeys="true" keyProperty="groupUserId">
+    <![CDATA[
+        INSERT INTO t_group_user (
+        	GROUP_USER_ID ,
+        	USER_ID ,
+        	GROUP_ID 
+        ) VALUES (
+        	#{groupUserId} ,
+        	#{userId} ,
+        	#{groupId} 
+        )
+    ]]>
+		<!--	
+			oracle: order="BEFORE" SELECT sequenceName.nextval AS ID FROM DUAL 
+			DB2: order="BEFORE"" values nextval for sequenceName
+		<selectKey resultType="java.lang.Long" order="BEFORE" keyProperty="userId">
+			SELECT sequenceName.nextval AS ID FROM DUAL 
+        </selectKey>
+		-->
+	</insert>
+    
+	<update id="GroupUser.update" >
+    <![CDATA[
+        UPDATE t_group_user SET
+	        USER_ID = #{userId} ,
+	        GROUP_ID = #{groupId} 
+        WHERE 
+	        GROUP_USER_ID = #{groupUserId} 
+    ]]>
+	</update>
+
+    <delete id="GroupUser.delete">
+    <![CDATA[
+        DELETE FROM t_group_user WHERE
+        GROUP_USER_ID = #{id} 
+    ]]>
+    </delete>
+    
+    <select id="GroupUser.getById" resultMap="RM.GroupUser">
+		SELECT <include refid="GroupUser.columns" />
+	    <![CDATA[
+		    FROM t_group_user 
+	        WHERE 
+		        GROUP_USER_ID = #{id} 
+	    ]]>
+	</select>
+	
+	<sql id="GroupUser.findPage.where">
+		<!-- ognl访问静态方法的表达式 为@class@method(args),以下为调用rapid中的Ognl.isNotEmpty()方法,还有其它方法如isNotBlank()可以使用，具体请查看Ognl类 -->
+		<where>	      				
+	       <if test="@Ognl@isNotEmpty(groupUserId)">
+				AND GROUP_USER_ID = #{groupUserId}
+			</if>
+	       <if test="@Ognl@isNotEmpty(userId)">
+				AND USER_ID = #{userId}
+			</if>
+	       <if test="@Ognl@isNotEmpty(groupId)">
+				AND GROUP_ID = #{groupId}
+			</if>
+		</where>
+	</sql>
+		
+    <select id="GroupUser.findPage.count" resultType="long">
+        SELECT count(*) FROM t_group_user 
+		<include refid="GroupUser.findPage.where"/>    
+    </select>
+    
+    <!--
+    	分页查询已经使用Dialect进行分页,也可以不使用Dialect直接编写分页
+    	因为分页查询将传 offset,pageSize,lastRows 三个参数,不同的数据库可以根于此三个参数属性应用不同的分页实现
+    -->
+    <select id="GroupUser.findPage" resultMap="RM.GroupUser">
+    	SELECT <include refid="GroupUser.columns" />
+	    FROM t_group_user 
+		<include refid="GroupUser.findPage.where"/>
+		
+		<if test="@Ognl@isNotEmpty(sortColumns)">
+			ORDER BY ${sortColumns}
+		</if>
+    </select>
+
+	
+</mapper>
+

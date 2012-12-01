@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- DBUnit flatXml DataFile -->
+<dataset>
+
+
+	  <t_permission_group 
+			PERMISSION_GROUP_ID='349' 
+			PERMISSION_ID='713' 
+			GROUP_ID='867' 
+	  />	
+  
+</dataset>
